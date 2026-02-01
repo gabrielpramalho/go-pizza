@@ -2,19 +2,26 @@ package handler
 
 import (
 	"encoding/json"
-	"go-pizza/internal/service"
+	"go-pizza/internal/entity"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 )
 
+type PizzaServiceInterface interface {
+	CreateOrder(flavorID, clientID string, size entity.PizzaSize) (entity.Order, error)
+	CookPizza(id string)
+	GetOrderStatus(id string) (entity.Order, error)
+	GetAllOrders() ([]entity.Order, error)
+}
+
 type PizzaHandler struct {
-	service  *service.PizzaService
+	service  PizzaServiceInterface
 	validate *validator.Validate
 }
 
-func NewPizzaHandler(s *service.PizzaService) *PizzaHandler {
+func NewPizzaHandler(s PizzaServiceInterface) *PizzaHandler {
 	return &PizzaHandler{
 		service:  s,
 		validate: validator.New(),
@@ -61,7 +68,7 @@ func (h *PizzaHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	order, err := h.service.CreateOrder(body.FlavorID, body.Size, body.ClientID)
+	order, err := h.service.CreateOrder(body.FlavorID, body.ClientID, entity.PizzaSize(body.Size))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

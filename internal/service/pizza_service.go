@@ -18,7 +18,7 @@ func NewPizzaService(repo repository.OrderRepository) *PizzaService {
 	return &PizzaService{repo: repo}
 }
 
-func (s *PizzaService) CreateOrder(flavorID, size, clientID string) (entity.Order, error) {
+func (s *PizzaService) CreateOrder(flavorID, clientID string, size entity.PizzaSize) (entity.Order, error) {
 	price := float64(rand.Intn(50) + 20)
 
 	order := entity.Order{
@@ -27,7 +27,7 @@ func (s *PizzaService) CreateOrder(flavorID, size, clientID string) (entity.Orde
 		Size:       size,
 		ClientID:   clientID,
 		TotalPrice: price,
-		Status:     "created",
+		Status:     entity.OrderStatusPending,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
@@ -38,7 +38,7 @@ func (s *PizzaService) CreateOrder(flavorID, size, clientID string) (entity.Orde
 func (s *PizzaService) CookPizza(id string) {
 	slog.Info("Pizza começou a assar", "order_id", id)
 	time.Sleep(20 * time.Second)
-	order, err := s.repo.UpdateStatus(id, "ready")
+	order, err := s.repo.UpdateStatus(id, entity.OrderStatusReady)
 	if err != nil {
 		slog.Error("Erro ao atualizar status da pizza", "order_id", id, "error", err)
 		return

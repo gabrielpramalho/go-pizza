@@ -9,7 +9,7 @@ import (
 type OrderRepository interface {
 	Create(order entity.Order) (entity.Order, error)
 	GetByID(id string) (entity.Order, error)
-	UpdateStatus(id, status string) (entity.Order, error)
+	UpdateStatus(id string, status entity.OrderStatus) (entity.Order, error)
 	FindAll() ([]entity.Order, error)
 }
 
@@ -45,7 +45,7 @@ func (r *MemoryOrderRepository) GetByID(id string) (entity.Order, error) {
 	return order, nil
 }
 
-func (r *MemoryOrderRepository) UpdateStatus(id, status string) (entity.Order, error) {
+func (r *MemoryOrderRepository) UpdateStatus(id string, status entity.OrderStatus) (entity.Order, error) {
 	order, exists := r.orders[id]
 
 	if !exists {

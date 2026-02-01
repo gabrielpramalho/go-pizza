@@ -77,7 +77,7 @@ func (r *PostgresRepository) GetByID(id string) (entity.Order, error) {
 	return order, nil
 }
 
-func (r *PostgresRepository) UpdateStatus(id string, status string) (entity.Order, error) {
+func (r *PostgresRepository) UpdateStatus(id string, status entity.OrderStatus) (entity.Order, error) {
 	stmt := `UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, status, updated_at`
 
 	_, err := r.db.Exec(stmt, status, id)
