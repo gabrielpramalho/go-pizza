@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3333:3333"
+    environment:
+      - DATABASE_URL=postgres://root:root@db:5432/pizza_db?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=pizza_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # O comando que o Docker roda pra saber se o banco tá vivo
+      test: ["CMD-SHELL", "pg_isready -U root -d pizza_db"]
+      interval: 5s    # Tenta a cada 5 segundos
+      timeout: 5s     # Se demorar mais que 5s, falha
+      retries: 5      # Tenta 5 vezes antes de desistir
+volumes:
+  postgres_data:
