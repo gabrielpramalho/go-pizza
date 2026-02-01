@@ -95,7 +95,8 @@ func (r *PostgresRepository) FindAll() ([]entity.Order, error) {
 	}
 	defer rows.Close()
 
-	var orders []entity.Order
+	orders := []entity.Order{}
+
 	for rows.Next() {
 		var order entity.Order
 		err := rows.Scan(
