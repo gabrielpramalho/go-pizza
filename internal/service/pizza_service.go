@@ -1,9 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"go-pizza/internal/entity"
 	"go-pizza/internal/repository"
+	"log/slog"
 	"math/rand"
 	"time"
 
@@ -36,14 +36,14 @@ func (s *PizzaService) CreateOrder(flavorID, size, clientID string) (entity.Orde
 }
 
 func (s *PizzaService) CookPizza(id string) {
-	fmt.Printf("🔥 [Cozinha] Pizza %s começou a assar...\n", id)
+	slog.Info("Pizza começou a assar", "order_id", id)
 	time.Sleep(20 * time.Second)
 	order, err := s.repo.UpdateStatus(id, "ready")
 	if err != nil {
-		fmt.Printf("❌ [Cozinha] Erro ao atualizar status da pizza %s: %v\n", id, err)
+		slog.Error("Erro ao atualizar status da pizza", "order_id", id, "error", err)
 		return
 	}
-	fmt.Printf("🔔 [Cozinha] Pizza  da %s está PRONTA!\n", order.ClientID)
+	slog.Info("Pizza pronta", "order_id", id, "client_id", order.ClientID)
 }
 
 func (s *PizzaService) GetOrderStatus(id string) (entity.Order, error) {

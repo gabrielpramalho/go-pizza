@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"go-pizza/internal/handler"
 	"go-pizza/internal/repository"
 	"go-pizza/internal/service"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -25,9 +25,10 @@ func main() {
 		panic("A variável DATABASE_URL é obrigatória!")
 	}
 
-	fmt.Println("🐘 Conectando ao Postgres...")
+	slog.Info("Conectando ao Postgres...")
 	repo, err := repository.NewPostgresRepository(dbURL)
 	if err != nil {
+		slog.Error("Erro ao conectar ao Postgres", "error", err)
 		panic(err)
 	}
 	svc := service.NewPizzaService(repo)
@@ -37,8 +38,10 @@ func main() {
 	http.HandleFunc("/orders/status", hand.GetOrderStatusHandler)
 	http.HandleFunc("/orders/all", hand.GetAllOrdersHandler)
 
-	fmt.Printf("🚀 Servidor iniciado na porta %s \n", port)
+	slog.Info("Servidor iniciado", "port", port)
+
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		slog.Error("Erro ao iniciar o servidor", "error", err)
 		panic(err)
 	}
 }

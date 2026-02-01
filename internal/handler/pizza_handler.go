@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"go-pizza/internal/service"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -52,11 +53,11 @@ func (h *PizzaHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Request
 			}
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{
-			"errors": messages,
-		})
+		writeJSONResponse(w, http.StatusBadRequest, map[string]any{"errors": messages})
+
+		if err != nil {
+			slog.Error("failed to write response", "error", err)
+		}
 		return
 	}
 
@@ -68,9 +69,7 @@ func (h *PizzaHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Request
 
 	go h.service.CookPizza(order.ID)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(order)
+	writeJSONResponse(w, http.StatusCreated, order)
 }
 
 func (h *PizzaHandler) GetOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,8 +86,7 @@ func (h *PizzaHandler) GetOrderStatusHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(order)
+	writeJSONResponse(w, http.StatusOK, order)
 }
 
 func (h *PizzaHandler) GetAllOrdersHandler(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +101,5 @@ func (h *PizzaHandler) GetAllOrdersHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(orders)
+	writeJSONResponse(w, http.StatusOK, orders)
 }
