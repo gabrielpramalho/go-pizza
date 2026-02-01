@@ -11,7 +11,7 @@ import (
 )
 
 type PizzaService struct {
-	repo repository.OrderRepository 
+	repo repository.OrderRepository
 }
 
 func NewPizzaService(repo repository.OrderRepository) *PizzaService {
@@ -38,8 +38,12 @@ func (s *PizzaService) CreateOrder(flavorID, size, clientID string) (entity.Orde
 func (s *PizzaService) CookPizza(id string) {
 	fmt.Printf("🔥 [Cozinha] Pizza %s começou a assar...\n", id)
 	time.Sleep(20 * time.Second)
-	s.repo.UpdateStatus(id, "ready")
-	fmt.Printf("🔔 [Cozinha] Pizza %s está PRONTA!\n", id)
+	order, err := s.repo.UpdateStatus(id, "ready")
+	if err != nil {
+		fmt.Printf("❌ [Cozinha] Erro ao atualizar status da pizza %s: %v\n", id, err)
+		return
+	}
+	fmt.Printf("🔔 [Cozinha] Pizza  da %s está PRONTA!\n", order.ClientID)
 }
 
 func (s *PizzaService) GetOrderStatus(id string) (entity.Order, error) {
